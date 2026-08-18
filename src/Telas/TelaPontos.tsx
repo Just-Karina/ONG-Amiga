@@ -1,9 +1,12 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { FlatList, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { DIAS_SEMANA, Ponto, TIPOS_DOACAO } from "../types";
 import { RootStackParamList } from "../../App";
+import { useState } from "react";
+
 
 type Props = NativeStackScreenProps<RootStackParamList, "ListaPontos">;
+
 
 const pontosMock: Ponto[] = [
   {
@@ -44,28 +47,31 @@ function PontoItem({
 }
 
 export default function TelaListaPontos({ navigation }: Props) {
+  const [pontos] = useState<Ponto[]>(pontosMock);
   return (
     <View style={styles.container}>
       <Text>Pontos de Doação:</Text>
-      {pontosMock.map((ponto) => (
-        <PontoItem
-          key={ponto.id}
-          ponto={ponto}
-          onPress={() => navigation.navigate("DetalhesPonto", { ponto })}
-        />
-      ))}
+      <FlatList
+        data={pontos}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => navigation.navigate('DetalhesPonto', { ponto: item })}
+          >
+            <Text style={styles.nome}>{item.nome}</Text>
+            <Text style={styles.endereco}>{item.endereco}</Text>
+          </TouchableOpacity>
+        )}
+      />
+      
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  item: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
+    container: {flex: 1 , padding: 20},
+    item: {margin: 10},
+    nome: {fontSize: 18, fontWeight: 'bold'},
+    endereco: {fontSize: 14},
 });
