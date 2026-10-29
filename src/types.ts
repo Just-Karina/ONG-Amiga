@@ -21,3 +21,8 @@ export type Ponto = {
     diasQueAtende: DIAS_SEMANA[];
     tiposDeDoacao: TIPOS_DOACAO[];
 }
+
+export type RootStackParamList = {
+    TelaListaPontos: undefined;
+    TelaDetalhePonto: { pontoId: number };
+};

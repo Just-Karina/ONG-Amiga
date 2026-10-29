@@ -1,77 +1,67 @@
-import { FlatList, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { DIAS_SEMANA, Ponto, TIPOS_DOACAO } from "../types";
-import { RootStackParamList } from "../../App";
-import { useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { pontosMock } from "../dados/pontosMock";
+import { Ponto, RootStackParamList } from "../types";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+type Props = NativeStackScreenProps<RootStackParamList, "TelaListaPontos">;
 
-type Props = NativeStackScreenProps<RootStackParamList, "ListaPontos">;
-
-
-const pontosMock: Ponto[] = [
-  {
-    id: 1,
-    nome: "Ponto de Doação 1",
-    endereco: "Rua Pintado, 90",
-    diasQueAtende: [DIAS_SEMANA.SEGUNDA, DIAS_SEMANA.QUARTA],
-    tiposDeDoacao: [TIPOS_DOACAO.ALIMENTOS, TIPOS_DOACAO.ROUPAS],
-  },
-  {
-    id: 2,
-    nome: "Ponto de Doação 2",
-    endereco: "Rua Azul, 233",
-    diasQueAtende: [DIAS_SEMANA.QUINTA, DIAS_SEMANA.DOMINGO],
-    tiposDeDoacao: [TIPOS_DOACAO.ROUPAS],
-  },
-  {
-    id: 3,
-    nome: "Ponto de Doação 3",
-    endereco: "Rua Dos Angicos, 21",
-    diasQueAtende: [DIAS_SEMANA.SABADO, DIAS_SEMANA.DOMINGO],
-    tiposDeDoacao: [TIPOS_DOACAO.ALIMENTOS],
-  },
-];
-
-function PontoItem({
-  ponto,
-  onPress,
-}: {
-  ponto: Ponto;
-  onPress: () => void;
-}) {
+function PontoItem({ ponto, onPress }: { ponto: Ponto; onPress: () => void }) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.item}>
-      <Text>{ponto.nome}</Text>
-    </TouchableOpacity>
+    <Pressable onPress={onPress} style={styles.item}>
+      <Text style={styles.nome}>{ponto.nome}</Text>
+      <Text style={styles.endereco}>{ponto.endereco}</Text>
+    </Pressable>
   );
 }
 
 export default function TelaListaPontos({ navigation }: Props) {
-  const [pontos] = useState<Ponto[]>(pontosMock);
   return (
-    <View style={styles.container}>
-      <Text>Pontos de Doação:</Text>
-      <FlatList
-        data={pontos}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => navigation.navigate('DetalhesPonto', { ponto: item })}
-          >
-            <Text style={styles.nome}>{item.nome}</Text>
-            <Text style={styles.endereco}>{item.endereco}</Text>
-          </TouchableOpacity>
-        )}
-      />
-      
-    </View>
+    <SafeAreaView style={styles.safeareaview}>
+      <View style={styles.container}>{/* Cadastro de item de doação */}</View>
+      <View style={styles.container}>
+        <FlatList
+          data={pontosMock}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <PontoItem
+              key={item.id}
+              ponto={item}
+              onPress={() =>
+                navigation.navigate("TelaDetalhePonto", { pontoId: item.id })
+              }
+            />
+          )}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-    container: {flex: 1 , padding: 20},
-    item: {margin: 10},
-    nome: {fontSize: 18, fontWeight: 'bold'},
-    endereco: {fontSize: 14},
+  safeareaview: {
+    flex: 1,
+    backgroundColor: '#676767'
+  },
+  container: {
+    padding: 16,
+    backgroundColor: "#fff",
+    gap: 12,
+  },
+  item: {
+    borderWidth: 1,
+    borderColor: "#827d7d",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+    backgroundColor: "#fff",
+  },
+  nome: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  endereco: {
+    marginTop: 4,
+    color: "#444",
+  },
 });
