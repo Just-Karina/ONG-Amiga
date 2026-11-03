@@ -1,7 +1,23 @@
 export enum TIPOS_DOACAO {
     ALIMENTOS = "Alimentos",
-    ROUPAS = "Roupas"
+    ROUPAS = "Roupas",
+    LIVROS = "Livros",
+    BRINQUEDOS = "Brinquedos",
+    CALCADOS = "Calçados",
+    HIGIENE = "Higiene",
+    RACOES = "Rações"
 }
+
+
+export type ItemDoacao = {
+    id: number;
+    criadoEm: Date;
+    nome: string;
+    tipo: TIPOS_DOACAO;
+    quantidade: number;
+    pontoDestino: Ponto;
+}
+
 
 export enum DIAS_SEMANA {
     SABADO = "Sábado",
@@ -18,11 +34,16 @@ export type Ponto = {
     id: number;
     nome: string;
     endereco: string;
-    diasQueAtende: DIAS_SEMANA[];
-    tiposDeDoacao: TIPOS_DOACAO[];
-}
+    diasQueAtende: string[];
+    tiposDoacao: string[];
+    latitude: number;
+    longitude: number;
+};
+
 
 export type RootStackParamList = {
-    TelaListaPontos: undefined;
+    TelaListaPontos: { doacaoId?: number } | undefined;
     TelaDetalhePonto: { pontoId: number };
+    TelaMinhasDoacoes: undefined;
+    TelaDetalheDoacao: { doacaoId: number };
 };
