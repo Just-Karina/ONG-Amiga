@@ -1,0 +1,8 @@
+{
+    "js/ts.preferences.autoImportFileExcludePatterns": [
+        "react-native-web",
+        "react-native/types_generated/",
+        "react-native/libraries/"
+    ],
+    "npm.packageManager": "bun"
+}
