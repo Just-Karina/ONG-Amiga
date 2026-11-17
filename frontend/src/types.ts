@@ -31,19 +31,20 @@ export enum DIAS_SEMANA {
 
 
 export type Ponto = {
-    id: number;
+    id: string;
     nome: string;
     endereco: string;
-    diasQueAtende: string[];
-    tiposDoacao: string[];
-    latitude: number;
-    longitude: number;
+    bairro: string;
+    horario: string;
+    tipo: string; 
 };
+
+export type PontoRequest = Omit<Ponto, "id">;
 
 
 export type RootStackParamList = {
     TelaListaPontos: { doacaoId?: number } | undefined;
-    TelaDetalhePonto: { pontoId: number };
+    TelaDetalhePonto: { pontoId: string };
     TelaMinhasDoacoes: undefined;
     TelaDetalheDoacao: { doacaoId: number };
 };
