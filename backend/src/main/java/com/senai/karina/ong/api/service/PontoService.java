@@ -6,7 +6,10 @@ import com.senai.karina.ong.api.dto.PontoResponseDTO;
 import com.senai.karina.ong.api.entity.Ponto;
 import com.senai.karina.ong.api.repository.PontoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -45,5 +48,11 @@ public class PontoService {
     private Ponto buscarEntidade(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new PontoNaoEncontradoException(id));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PontoResponseDTO> buscar(String filtro, Pageable pageable) {
+        String f = filtro == null ? "" : filtro.trim();
+        return repository.buscar(f, pageable).map(PontoResponseDTO::toDto);
     }
 }
