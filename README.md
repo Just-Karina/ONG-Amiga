@@ -1,19 +1,4 @@
-# API de Pontos de Coleta e Distribuição
-
-API REST em Spring Boot para cadastrar e consultar pontos de coleta e distribuição de uma ONG, com carga inicial de pontos em Goiânia.
-
-## Tecnologias
-
-- Java + Spring Boot
-- Spring Web
-- Spring Data JPA
-- H2 (gravando em arquivo)
-- Lombok
-- springdoc-openapi (Swagger)
-- spring-boot-starter-validation
-- Front-end: Expo e React Native (web e mobile)
-
-## Estrutura do projeto
+# ONG-Alimentos
 
 O projeto é dividido em duas partes:
 
@@ -25,9 +10,12 @@ O projeto é dividido em duas partes:
 - Java 21
 - Maven Wrapper
 - Node.js e npm, para executar o front-end
-- Android Studio ou Expo Go (para testar no Android)
+- Android Studio/Expo Go (para testar no Android)
 
-Para testar em um celular físico, troque o endereço no arquivo `front-end/.env` (variável de ambiente `EXPO_PUBLIC_SERVIDOR_URL`) pelo IP da máquina na rede local, por exemplo `http://192.168.0.10:8080`. O back-end deve estar em execução antes de utilizar as funcionalidades que dependem da API.
+Para testar em um celular físico, troque o endereço no arquivo
+`front-end/.env` (variável de ambiente `EXPO_PUBLIC_SERVIDOR_URL`) pelo IP da
+máquina na rede local, por exemplo `http://192.168.0.10:8080`. O back-end deve
+estar em execução antes de utilizar as funcionalidades que dependem da API.
 
 ## Executando o back-end
 
@@ -35,39 +23,43 @@ Abra um terminal na pasta do projeto e execute:
 
 ```bash
 cd back-end-api
-./mvnw spring-boot:run
+.\mvnw spring-boot:run
 ```
 
-No Windows (PowerShell), use `.\mvnw spring-boot:run`.
+A API fica disponível em:
 
-A API fica disponível em `http://localhost:8080`.
+```text
+http://localhost:8080
+```
 
-O banco H2 grava em arquivo (`./data/ongdb`), então os dados continuam salvos depois de reiniciar. A carga inicial (8 pontos em Goiânia) só é inserida se a tabela estiver vazia, por isso não duplica a cada reinício.
+O banco H2 é persistido em arquivo em `back-end-api/data/ongdb.mv.db`. A carga
+inicial (8 pontos em Goiânia) só é inserida quando a tabela está vazia, então
+não duplica a cada reinício.
 
-## Links úteis
+## Swagger
 
-| Recurso | URL |
-|---|---|
-| Swagger UI | http://localhost:8080/swagger-ui/index.html |
-| Documentação OpenAPI (JSON) | http://localhost:8080/v3/api-docs |
-| Console do H2 | http://localhost:8080/h2-console |
+Documentação interativa:
 
-Console do H2: JDBC URL `jdbc:h2:file:./data/ongdb`, usuário `sa`, senha em branco.
+- [Swagger UI](http://localhost:8080/swagger-ui/index.html)
+- [OpenAPI JSON](http://localhost:8080/v3/api-docs)
 
-## Modelo
+![Swagger com os endpoints da API](./.docs/swagger-endpoints.png)
 
-**Ponto**
+## Endpoints
 
-| Campo | Tipo | Observação |
+Todos os endpoints usam o prefixo `/api/v1/pontos`.
+
+| Método | URL | Resposta esperada |
 |---|---|---|
-| id | UUID | gerado automaticamente |
-| nome | texto | obrigatório |
-| endereco | texto | obrigatório |
-| bairro | texto | obrigatório |
-| horario | texto | obrigatório, ex.: "Seg a Sex, 8h às 17h" |
-| tipo | texto | obrigatório, `coleta` ou `distribuição` |
+| GET | `/api/v1/pontos` | `200 OK` com a lista de pontos |
+| GET | `/api/v1/pontos/{id}` | `200 OK` com um ponto, ou `404 Not Found` |
+| POST | `/api/v1/pontos` | `201 Created` com o ponto criado, ou `400 Bad Request` |
+| PUT | `/api/v1/pontos/{id}` | `200 OK` com o ponto atualizado, `400 Bad Request` ou `404 Not Found` |
+| DELETE | `/api/v1/pontos/{id}` | `204 No Content`, ou `404 Not Found` |
 
-Exemplo de corpo para POST e PUT:
+### Exemplo de requisição
+
+O campo `tipo` aceita `coleta` ou `distribuição`.
 
 ```json
 {
@@ -79,60 +71,61 @@ Exemplo de corpo para POST e PUT:
 }
 ```
 
-## Endpoints
+### Respostas documentadas
 
-Base: `http://localhost:8080/api/v1/pontos`
+#### POST /api/v1/pontos com campos vazios
 
-| Método | URL | Descrição | Respostas |
-|---|---|---|---|
-| GET | `/api/v1/pontos` | Lista todos os pontos | 200 |
-| GET | `/api/v1/pontos/{id}` | Busca um ponto pelo id | 200, 404 |
-| POST | `/api/v1/pontos` | Cadastra um ponto | 201, 400 |
-| PUT | `/api/v1/pontos/{id}` | Atualiza um ponto | 200, 400, 404 |
-| DELETE | `/api/v1/pontos/{id}` | Remove um ponto | 204, 404 |
+![Swagger com o corpo da requisição POST com campos vazios](./.docs/swagger-post-requisicao.png)
 
-Regras:
-- `nome`, `endereco`, `bairro`, `horario` e `tipo` são obrigatórios e não podem ser vazios. Se algum faltar, a API responde 400 e nada é gravado.
-- GET, PUT e DELETE com id inexistente respondem 404.
-- A API devolve sempre `PontoResponseDTO`, nunca a entidade.
+#### Erro de validação — 400 Bad Request
 
-## Prints do Swagger
+Ocorre quando `nome`, `endereco`, `bairro`, `horario` ou `tipo` estão vazios no
+POST ou no PUT. Nada é gravado no banco.
 
-### GET /api/v1/pontos (200)
+![Swagger retornando 400 para um ponto inválido](./.docs/swagger-400.png)
 
-![GET lista](prints/get-lista-200.png)
+```json
+{
+  "status": 400,
+  "erro": "Dados inválidos",
+  "campos": {
+    "tipo": "tipo é obrigatório",
+    "horario": "horario é obrigatório",
+    "endereco": "endereco é obrigatório",
+    "bairro": "bairro é obrigatório",
+    "nome": "nome é obrigatório"
+  }
+}
+```
 
-### GET /api/v1/pontos/{id} (200)
+#### Ponto inexistente — 404 Not Found
 
-![GET por id](prints/get-id-200.png)
+Ocorre no GET, PUT ou DELETE de um UUID que não existe.
 
-### GET /api/v1/pontos/{id} com id inexistente (404)
+![Swagger retornando 404 para um ponto inexistente](./.docs/swagger-404.png)
 
-![GET por id 404](prints/get-id-404.png)
+```json
+{
+  "status": 404,
+  "erro": "Ponto não encontrado: f0d24902-54e8-4825-a824-7236d9491dfe"
+}
+```
 
-### POST /api/v1/pontos (201)
+## Tecnologias e organização
 
-![POST 201](prints/post-201.png)
+- Spring Web MVC
+- Spring Data JPA
+- H2 em arquivo
+- Lombok
+- Bean Validation
+- springdoc OpenAPI / Swagger
+- Pacotes `entity`, `repository`, `service`, `controller`, `dto` e `config`
 
-### POST /api/v1/pontos com campo vazio (400)
-
-![POST 400](prints/post-400.png)
-
-### PUT /api/v1/pontos/{id} (200)
-
-![PUT 200](prints/put-200.png)
-
-### PUT /api/v1/pontos/{id} com id inexistente (404)
-
-![PUT 404](prints/put-404.png)
-
-### DELETE /api/v1/pontos/{id} (204)
-
-![DELETE 204](prints/delete-204.png)
+O CORS está liberado para permitir o consumo da API pelo front-end.
 
 ## Executando o front-end
 
-Em outro terminal, com o back-end já em execução:
+Em outro terminal:
 
 ```bash
 cd front-end
@@ -163,5 +156,3 @@ O front-end está configurado para acessar a API em:
 ```text
 http://localhost:8080
 ```
-
-O endereço da API é definido na variável `EXPO_PUBLIC_SERVIDOR_URL` do arquivo `front-end/.env`. O CORS da API está liberado (`@CrossOrigin`) para permitir esse acesso.
