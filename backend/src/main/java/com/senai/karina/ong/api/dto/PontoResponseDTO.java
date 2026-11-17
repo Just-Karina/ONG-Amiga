@@ -10,11 +10,16 @@ public record PontoResponseDTO(
         String endereco,
         String bairro,
         String horario,
-        String tipoPonto
+        String tipo
 ) {
-   /* public static PontoResponseDTO toDto(Ponto ponto){
+    public static PontoResponseDTO toDto(Ponto ponto) {
         return new PontoResponseDTO(
-                ponto.getId();
+                ponto.getId(),
+                ponto.getNome(),
+                ponto.getEndereco(),
+                ponto.getBairro(),
+                ponto.getHorario(),
+                ponto.getTipo()
         );
-    }*/
+    }
 }
