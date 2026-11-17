@@ -6,6 +6,10 @@ import com.senai.karina.ong.api.service.PontoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +28,13 @@ public class PontoController {
     @GetMapping
     public List<PontoResponseDTO> listar() {
         return service.listar();
+    }
+
+    @GetMapping("/filtro")
+    public Page<PontoResponseDTO> filtrar(
+            @RequestParam(required = false) String filtro,
+            @ParameterObject @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        return service.buscar(filtro, pageable);
     }
 
     @GetMapping("/{id}")
